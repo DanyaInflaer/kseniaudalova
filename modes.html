@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Игровые режимы — VALORANT HUB</title>
+<meta name="description" content="Режимы игры VALORANT: Unrated, Competitive, Swiftplay, Spike Rush и другие.">
+<meta name="theme-color" content="#101014">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html" aria-label="VALORANT HUB — на главную"><span class="logo-mark" aria-hidden="true"></span><span class="logo-text">VALORANT <b>HUB</b></span></a>
+    <button class="nav-toggle" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span></button>
+    <nav id="nav" class="nav" aria-label="Основная навигация">
+      <a href="index.html">Home</a><a href="agents.html">Agents</a><a href="maps.html">Maps</a><a href="weapons.html">Weapons</a><a href="modes.html" class="active" aria-current="page">Game Modes</a><a href="about.html">About</a>
+      <div class="search">
+        <input type="search" id="site-search" placeholder="Поиск по сайту" autocomplete="off" aria-label="Поиск по сайту">
+        <ul id="search-results" class="search-results" hidden></ul>
+      </div>
+    </nav>
+  </div>
+</header>
+<main>
+<section class="page-head">
+  <div class="container">
+    <span class="kicker">Game Modes</span>
+    <h1>Игровые <span class="accent">режимы</span></h1>
+    <p class="lead">Основные режимы VALORANT: от стандартных матчей до тренировки.</p>
+  </div>
+</section><section class="section">
+  <div class="container">
+    <div class="grid grid-2"><article class="card pad mode" id="unrated"><div class="mode-no" aria-hidden="true">01</div><h3>Unrated</h3><p>Стандартный командный режим 5 на 5 без рейтинга: нападение против обороны, спайк, до 13 побед в раундах.</p></article><article class="card pad mode" id="competitive"><div class="mode-no" aria-hidden="true">02</div><h3>Competitive</h3><p>Тот же формат, но с рейтингом и рангом. Победы и поражения двигают вас по лестнице рангов.</p></article><article class="card pad mode" id="swiftplay"><div class="mode-no" aria-hidden="true">03</div><h3>Swiftplay</h3><p>Сокращённая версия стандартного матча: меньше раундов, быстрый матч на 15–20 минут.</p></article><article class="card pad mode" id="spike-rush"><div class="mode-no" aria-hidden="true">04</div><h3>Spike Rush</h3><p>Короткие раунды, у всех одинаковое снаряжение и случайные усиления. Хорош для быстрой игры.</p></article><article class="card pad mode" id="deathmatch"><div class="mode-no" aria-hidden="true">05</div><h3>Deathmatch</h3><p>Бой каждый сам за себя: побеждает первый, набравший нужное число убийств.</p></article><article class="card pad mode" id="team-deathmatch"><div class="mode-no" aria-hidden="true">06</div><h3>Team Deathmatch</h3><p>Командный бой без спайка: две команды сражаются до установленного числа убийств.</p></article><article class="card pad mode" id="escalation"><div class="mode-no" aria-hidden="true">07</div><h3>Escalation</h3><p>Каждое убийство меняет оружие на следующее в списке. Побеждает команда, которая быстрее пройдёт все ступени.</p></article><article class="card pad mode" id="replication"><div class="mode-no" aria-hidden="true">08</div><h3>Replication</h3><p>Все игроки одной команды играют одним и тем же агентом, что приводит к необычным комбинациям способностей.</p></article><article class="card pad mode" id="premier"><div class="mode-no" aria-hidden="true">09</div><h3>Premier</h3><p>Организованный режим для постоянных команд с расписанием матчей и турнирной сеткой.</p></article><article class="card pad mode" id="the-range"><div class="mode-no" aria-hidden="true">10</div><h3>The Range</h3><p>Тренировочная зона: можно стрелять по ботам и мишеням, изучать способности агентов и настраивать прицел.</p></article></div>
+    <p class="note">Набор режимов может меняться: часть из них доступна только в определённые периоды. Актуальный список смотрите в игре.</p>
+  </div>
+</section>
+</main>
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <div class="logo logo-footer"><span class="logo-mark" aria-hidden="true"></span><span class="logo-text">VALORANT <b>HUB</b></span></div>
+      <p class="muted">Информационный сайт о тактическом шутере VALORANT: агенты, карты, оружие и игровые режимы.</p>
+    </div>
+    <div>
+      <h4>Разделы</h4>
+      <div class="footer-links"><a href="index.html">Home</a><a href="agents.html">Agents</a><a href="maps.html">Maps</a><a href="weapons.html">Weapons</a><a href="modes.html">Game Modes</a><a href="about.html">About</a></div>
+    </div>
+    <div>
+      <h4>Правовая информация</h4>
+      <p class="muted small">Неофициальный фанатский проект. VALORANT и все связанные названия, логотипы и материалы являются собственностью Riot Games, Inc. Сайт не связан с Riot Games и не одобрен ею.</p>
+    </div>
+  </div>
+  <div class="container footer-bottom"><span>© 2026 VALORANT HUB</span></div>
+</footer>
+<script src="js/search-index.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

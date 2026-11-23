@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VALORANT HUB — всё об игре VALORANT</title>
+<meta name="description" content="Информационный сайт о VALORANT: агенты, карты, оружие и игровые режимы.">
+<meta name="theme-color" content="#101014">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html" aria-label="VALORANT HUB — на главную"><span class="logo-mark" aria-hidden="true"></span><span class="logo-text">VALORANT <b>HUB</b></span></a>
+    <button class="nav-toggle" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span></button>
+    <nav id="nav" class="nav" aria-label="Основная навигация">
+      <a href="index.html" class="active" aria-current="page">Home</a><a href="agents.html">Agents</a><a href="maps.html">Maps</a><a href="weapons.html">Weapons</a><a href="modes.html">Game Modes</a><a href="about.html">About</a>
+      <div class="search">
+        <input type="search" id="site-search" placeholder="Поиск по сайту" autocomplete="off" aria-label="Поиск по сайту">
+        <ul id="search-results" class="search-results" hidden></ul>
+      </div>
+    </nav>
+  </div>
+</header>
+<main>
+<section class="hero">
+  <svg class="hero-art" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#FF4655" stop-opacity=".9"/>
+        <stop offset="1" stop-color="#FF4655" stop-opacity=".1"/>
+      </linearGradient>
+    </defs>
+    <polygon points="700,0 1200,0 1200,600 380,600" fill="url(#g1)" opacity=".35"/>
+    <polygon points="860,0 1200,0 1200,420 690,600 560,600" fill="#25252D" opacity=".85"/>
+    <polygon points="980,80 1200,80 1200,380 880,520" fill="#FF4655" opacity=".25"/>
+    <g stroke="#FF4655" stroke-width="2" fill="none" opacity=".8">
+      <circle cx="960" cy="300" r="120"/>
+      <circle cx="960" cy="300" r="70" opacity=".6"/>
+      <line x1="960" y1="140" x2="960" y2="220"/>
+      <line x1="960" y1="380" x2="960" y2="460"/>
+      <line x1="800" y1="300" x2="880" y2="300"/>
+      <line x1="1040" y1="300" x2="1120" y2="300"/>
+    </g>
+    <g stroke="#fff" stroke-opacity=".08">
+      <line x1="0" y1="150" x2="1200" y2="150"/>
+      <line x1="0" y1="300" x2="1200" y2="300"/>
+      <line x1="0" y1="450" x2="1200" y2="450"/>
+    </g>
+  </svg>
+  <div class="container hero-inner">
+    <span class="kicker">Информационный портал</span>
+    <h1>Добро пожаловать в <span class="accent">VALORANT HUB</span></h1>
+    <p class="lead">Привет, агент! Здесь собрано всё, что нужно знать о VALORANT: персонажи, карты, оружие и игровые режимы. Выбирай раздел и изучай игру.</p>
+    <div class="btn-row">
+      <a class="btn" href="agents.html">Смотреть агентов</a>
+      <a class="btn btn-ghost" href="about.html">Об игре</a>
+    </div>
+    <dl class="stats">
+      <div><dt>Агентов</dt><dd>28</dd></div>
+      <div><dt>Ролей</dt><dd>4</dd></div>
+      <div><dt>Карт</dt><dd>13</dd></div>
+      <div><dt>Режимов</dt><dd>10</dd></div>
+    </dl>
+  </div>
+</section><section class="section">
+  <div class="container">
+    <div class="section-head"><span class="kicker">Знакомство</span><h2>Что такое <span class="accent">VALORANT</span></h2></div>
+    <div class="grid grid-2">
+      <article class="card pad">
+        <h3>Тактический шутер 5 на 5</h3>
+        <p>VALORANT — бесплатная командная игра от Riot Games. Две команды по пять игроков: одни пытаются заложить спайк, другие — не дать этого сделать. Побеждает команда, первой выигравшая нужное количество раундов.</p>
+      </article>
+      <article class="card pad">
+        <h3>Агенты с уникальными способностями</h3>
+        <p>У каждого агента — свой набор навыков. Одни разведывают, другие ставят дымы, третьи держат тыл или прорываются первыми. Сочетание способностей и меткой стрельбы определяет исход боя.</p>
+      </article>
+    </div>
+  </div>
+</section><section class="section alt">
+  <div class="container">
+    <div class="section-head"><span class="kicker">Разделы</span><h2>Начни <span class="accent">отсюда</span></h2></div>
+    <div class="grid grid-3"><a class="card link-card" href="agents.html"><div class="card-media small"><span class="ph" aria-hidden="true">A</span></div><div class="card-body"><h3>Agents</h3><p>Персонажи игры с ролями и описанием способностей.</p><span class="more">Перейти &rarr;</span></div></a><a class="card link-card" href="maps.html"><div class="card-media small"><span class="ph" aria-hidden="true">M</span></div><div class="card-body"><h3>Maps</h3><p>Игровые карты и их особенности, актуальная ротация.</p><span class="more">Перейти &rarr;</span></div></a><a class="card link-card" href="weapons.html"><div class="card-media small"><span class="ph" aria-hidden="true">W</span></div><div class="card-body"><h3>Weapons</h3><p>Оружие по классам со стоимостью в кредитах.</p><span class="more">Перейти &rarr;</span></div></a><a class="card link-card" href="modes.html"><div class="card-media small"><span class="ph" aria-hidden="true">G</span></div><div class="card-body"><h3>Game Modes</h3><p>Все основные режимы: от рейтинга до тренировки.</p><span class="more">Перейти &rarr;</span></div></a><a class="card link-card" href="about.html"><div class="card-media small"><span class="ph" aria-hidden="true">i</span></div><div class="card-body"><h3>About</h3><p>История игры, Riot Games и интересные факты.</p><span class="more">Перейти &rarr;</span></div></a></div>
+  </div>
+</section><section class="section">
+  <div class="container">
+    <div class="section-head"><span class="kicker">Роли</span><h2>Четыре роли <span class="accent">агентов</span></h2></div>
+    <div class="grid grid-4"><article class="card pad role-card"><span class="chip chip-duelist"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 L12 4 L20 20 L12 15 Z"/></svg>Дуэлянт</span><h3>Дуэлянт</h3><p>Идут первыми, открывают раунд и добывают убийства. Главная задача — создать пространство для команды.</p></article><article class="card pad role-card"><span class="chip chip-initiator"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 L21 12 L12 21 L3 12 Z M12 8 L16 12 L12 16 L8 12 Z"/></svg>Инициатор</span><h3>Инициатор</h3><p>Разведывают позиции врагов и ломают оборону способностями: вспышки, оглушение, сканирование.</p></article><article class="card pad role-card"><span class="chip chip-controller"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a8 8 0 1 0 0.01 0z M12 8a4 4 0 1 1 -0.01 0z"/></svg>Контролёр</span><h3>Контролёр</h3><p>Режут обзор дымами и завесами, управляют проходами и помогают команде безопасно занимать точки.</p></article><article class="card pad role-card"><span class="chip chip-sentinel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 L20 7 V13 C20 17 16 20 12 21 C8 20 4 17 4 13 V7 Z"/></svg>Страж</span><h3>Страж</h3><p>Держат фланги и точки: ловушки, турели, камеры. Дают команде информацию и тыл.</p></article></div>
+  </div>
+</section>
+</main>
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <div class="logo logo-footer"><span class="logo-mark" aria-hidden="true"></span><span class="logo-text">VALORANT <b>HUB</b></span></div>
+      <p class="muted">Информационный сайт о тактическом шутере VALORANT: агенты, карты, оружие и игровые режимы.</p>
+    </div>
+    <div>
+      <h4>Разделы</h4>
+      <div class="footer-links"><a href="index.html">Home</a><a href="agents.html">Agents</a><a href="maps.html">Maps</a><a href="weapons.html">Weapons</a><a href="modes.html">Game Modes</a><a href="about.html">About</a></div>
+    </div>
+    <div>
+      <h4>Правовая информация</h4>
+      <p class="muted small">Неофициальный фанатский проект. VALORANT и все связанные названия, логотипы и материалы являются собственностью Riot Games, Inc. Сайт не связан с Riot Games и не одобрен ею.</p>
+    </div>
+  </div>
+  <div class="container footer-bottom"><span>© 2026 VALORANT HUB</span></div>
+</footer>
+<script src="js/search-index.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
