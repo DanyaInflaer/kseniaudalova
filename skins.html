@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skins — VALORANT HUB</title>
+<meta name="description" content="Скины VALORANT: все косметические наборы оружия с картинками, редкостью и фильтрами.">
+<meta name="theme-color" content="#101014">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23101014'/%3E%3Cpath fill='%23FF4655' d='M3 7h8l5 9 5-9h8L16 26z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="skins">
+<main>
+<section class="page-title"><div class="container">
+<div class="eyebrow">Коллекция</div>
+<h1 style="font-size:clamp(2rem,5vw,3.4rem)"><span class="accent">S</span>kins</h1>
+<p>Все скины оружия VALORANT. Ищите по названию, выбирайте оружие и редкость — остальные карточки открываются кнопкой «Показать ещё».</p>
+</div></section>
+<section class="section"><div class="container">
+<div class="toolbar">
+<input id="skin-q" type="search" placeholder="Название скина…" aria-label="Поиск скина" autocomplete="off">
+<select id="skin-weapon" aria-label="Оружие"><option value="">Всё оружие</option></select>
+<span id="skins-count" class="count"></span>
+</div>
+<div id="skin-tiers"></div>
+<div class="grid c4" id="skins-root"></div>
+<div style="text-align:center;margin-top:30px"><button class="btn" id="skins-more" type="button" hidden>Показать ещё</button></div>
+<p class="note">Картинки и названия скинов берутся из открытой базы valorant-api.com. Набор скинов в магазине игры меняется, а изображения принадлежат Riot Games.</p>
+</div></section>
+</main>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

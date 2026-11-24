@@ -8,6 +8,7 @@
     ['agents.html', 'Agents', 'agents'],
     ['maps.html', 'Maps', 'maps'],
     ['weapons.html', 'Weapons', 'weapons'],
+    ['skins.html', 'Skins', 'skins'],
     ['modes.html', 'Game Modes', 'modes'],
     ['about.html', 'About', 'about']
   ];
@@ -198,6 +199,74 @@
       });
     });
   }
+  function pageSkins() {
+    var root = $('#skins-root'), more = $('#skins-more'), countEl = $('#skins-count');
+    var qEl = $('#skin-q'), wEl = $('#skin-weapon'), tBox = $('#skin-tiers');
+    var STEP = 48;
+    root.innerHTML = '<p class="empty">Загрузка скинов…</p>';
+
+    Promise.all([api('weapons'), api('contenttiers')]).then(function (r) {
+      var weapons = r[0], tiers = r[1];
+      if (!weapons) {
+        delete cache['weapons']; delete cache['contenttiers'];
+        root.innerHTML = '<p class="empty">Не удалось загрузить скины с valorant-api.com. Проверьте интернет и попробуйте ещё раз. <button class="btn" id="retry" type="button" style="margin-left:10px">Повторить</button></p>';
+        $('#retry').addEventListener('click', pageSkins);
+        return;
+      }
+      var tierMap = {};
+      (tiers || []).forEach(function (t) {
+        tierMap[String(t.uuid).toLowerCase()] = { name: (t.displayName || '').replace(/\s*Edition$/i, ''), color: t.highlightColor ? '#' + t.highlightColor.slice(0, 6) : '', rank: t.rank || 0 };
+      });
+      var all = [];
+      weapons.forEach(function (w) {
+        (w.skins || []).forEach(function (s) {
+          var n = s.displayName || '';
+          if (/^standard /i.test(n) || /^random favorite/i.test(n)) return;
+          var img = s.displayIcon || (s.chromas && s.chromas[0] && (s.chromas[0].fullRender || s.chromas[0].displayIcon)) || (s.levels && s.levels[0] && s.levels[0].displayIcon);
+          if (!img) return;
+          var t = tierMap[String(s.contentTierUuid || '').toLowerCase()] || { name: 'Other', color: '', rank: -1 };
+          all.push({ name: n, weapon: w.displayName, tier: t.name, color: t.color, rank: t.rank, img: img });
+        });
+      });
+      all.sort(function (a, b) { return a.weapon.localeCompare(b.weapon) || a.name.localeCompare(b.name); });
+
+      var weaponNames = uniq(all.map(function (s) { return s.weapon; })).sort();
+      wEl.innerHTML = '<option value="">Всё оружие</option>' + weaponNames.map(function (n) { return '<option>' + esc(n) + '</option>'; }).join('');
+      var tierNames = uniq(all.slice().sort(function (a, b) { return a.rank - b.rank; }).map(function (s) { return s.tier; }));
+      var tier = 'All';
+      tBox.innerHTML = '';
+      tBox.appendChild(chips(tierNames, function (c) { tier = c; apply(); }));
+
+      var list = [], shown = 0;
+      function card(s) {
+        return '<article class="card skin" style="--tier:' + (s.color || 'var(--red)') + '"><div class="media weapon">' +
+          '<img src="' + esc(s.img) + '" alt="' + esc(s.name) + '" loading="lazy" decoding="async">' + ph(s.name) + '</div>' +
+          '<div class="body"><span class="tag">' + esc(s.tier) + '</span><h3>' + esc(s.name) + '</h3><p>' + esc(s.weapon) + '</p></div></article>';
+      }
+      function draw() {
+        var next = list.slice(shown, shown + STEP);
+        root.insertAdjacentHTML('beforeend', next.map(card).join(''));
+        shown += next.length;
+        more.hidden = shown >= list.length;
+        countEl.textContent = 'Показано ' + shown + ' из ' + list.length;
+      }
+      function apply() {
+        var q = qEl.value.trim().toLowerCase(), w = wEl.value;
+        list = all.filter(function (s) {
+          return (!w || s.weapon === w) && (tier === 'All' || s.tier === tier) && (!q || s.name.toLowerCase().indexOf(q) !== -1);
+        });
+        root.innerHTML = ''; shown = 0;
+        if (!list.length) { root.innerHTML = '<p class="empty">Ничего не найдено</p>'; more.hidden = true; countEl.textContent = ''; return; }
+        draw();
+      }
+      root.addEventListener('error', function (e) { if (e.target.tagName === 'IMG') e.target.remove(); }, true);
+      qEl.addEventListener('input', apply);
+      wEl.addEventListener('change', apply);
+      more.addEventListener('click', draw);
+      apply();
+    });
+  }
+
   function pageModes() {
     $('#modes-root').innerHTML = D.modes.map(modeCard).join('');
   }
@@ -231,6 +300,7 @@
       ['agents.html', 'Agents', 'Персонажи игры: роли, способности и стиль каждого агента.'],
       ['maps.html', 'Maps', 'Карты со всего мира, их особенности и ключевые зоны.'],
       ['weapons.html', 'Weapons', 'Весь арсенал: пистолеты, винтовки, снайперки и цены.'],
+      ['skins.html', 'Skins', 'Коллекция скинов для оружия с картинками и редкостью.'],
       ['modes.html', 'Game Modes', 'От рейтинговых матчей до быстрых и весёлых режимов.'],
       ['about.html', 'About', 'История игры, Riot Games и интересные факты.']
     ];
@@ -241,7 +311,7 @@
 
   renderChrome();
   initSearch();
-  var fn = { home: pageHome, agents: pageAgents, maps: pageMaps, weapons: pageWeapons, modes: pageModes }[page];
+  var fn = { home: pageHome, agents: pageAgents, maps: pageMaps, weapons: pageWeapons, skins: pageSkins, modes: pageModes }[page];
   if (fn) fn();
 
   // после динамической отрисовки перейти к якорю из поиска
