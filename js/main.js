@@ -139,6 +139,12 @@
     (list || []).forEach(function (x) { m[x.displayName.toLowerCase()] = x; });
     return m;
   }
+  // свои картинки из папки img/ (имена перечислены в data.js → localImages)
+  function localImg(kind, name) {
+    var key = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    var list = (D.localImages && D.localImages[kind]) || [];
+    return list.indexOf(key) !== -1 ? 'img/' + kind + '/' + key + '.jpg' : null;
+  }
   function setImg(card, url, alt) {
     var media = $('.media', card);
     if (!media || !url) return;
@@ -211,7 +217,8 @@
       var m = byName(list);
       [].forEach.call(grid.children, function (c) {
         var a = m[c.dataset.name.toLowerCase()];
-        if (a) setImg(c, a.fullPortrait || a.displayIcon, c.dataset.name);
+        var li = localImg('agents', c.dataset.name);
+        if (li) setImg(c, li, c.dataset.name); else if (a) setImg(c, a.fullPortrait || a.displayIcon, c.dataset.name);
       });
     });
   }
@@ -221,8 +228,8 @@
     api('maps').then(function (list) {
       var m = byName(list);
       [].forEach.call(grid.children, function (c) {
-        var x = m[c.dataset.name.toLowerCase()];
-        if (x) setImg(c, x.splash, c.dataset.name);
+        var x = m[c.dataset.name.toLowerCase()], li = localImg('maps', c.dataset.name);
+        if (li) setImg(c, li, c.dataset.name); else if (x) setImg(c, x.splash, c.dataset.name);
       });
     });
   }
@@ -239,8 +246,8 @@
     api('weapons').then(function (list) {
       var m = byName(list);
       [].forEach.call(grid.children, function (c) {
-        var x = m[c.dataset.name.toLowerCase()];
-        if (x) setImg(c, x.displayIcon, c.dataset.name);
+        var x = m[c.dataset.name.toLowerCase()], li = localImg('weapons', c.dataset.name);
+        if (li) setImg(c, li, c.dataset.name); else if (x) setImg(c, x.displayIcon, c.dataset.name);
       });
     });
   }
