@@ -33,7 +33,7 @@
       '<nav class="nav" id="nav" aria-label="Главное меню">' + links + '</nav>' +
       '<div class="search"><input id="q" type="search" placeholder="Поиск по сайту" autocomplete="off" aria-label="Поиск по сайту">' +
       '<div class="results" id="results"></div></div>' +
-      '<button class="burger" id="burger" aria-label="Открыть меню"><span></span></button>' +
+      '<button class="burger" id="burger" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="nav"><span></span></button>' +
       '</div>';
     document.body.insertBefore(header, document.body.firstChild);
     document.body.classList.add('ready');
@@ -48,7 +48,10 @@
       '<div class="copy">© ' + new Date().getFullYear() + ' VALORANT HUB. Неофициальный фан-сайт. VALORANT и все связанные материалы — товарные знаки и собственность Riot Games, Inc. Сайт не связан с Riot Games.</div>';
     document.body.appendChild(footer);
 
-    $('#burger').addEventListener('click', function () { $('#nav').classList.toggle('open'); });
+    $('#burger').addEventListener('click', function () {
+      var open = $('#nav').classList.toggle('open');
+      this.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
   }
 
   /* ---------- поиск ---------- */
@@ -94,13 +97,13 @@
     document.addEventListener('click', function (e) { if (!e.target.closest('.search')) box.classList.remove('open'); });
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') { box.classList.remove('open'); input.blur(); }
-      if (e.key === 'Enter') { clearTimeout(tmr); runSearch(); var f = $('a', box); if (f) location.href = f.getAttribute('href'); }
+      if (e.key === 'Enter') { clearTimeout(tmr); runSearch(); var f = box.classList.contains('open') && $('a', box); if (f) location.href = f.getAttribute('href'); }
     });
   }
 
   /* ---------- данные с valorant-api.com (картинки) ---------- */
   var cache = {};
-  var TTL = 24 * 3600 * 1000, PFX = 'vh3:';
+  var TTL = 24 * 3600 * 1000, PFX = 'vh4:';
   function store(path, val) {
     try {
       if (val === undefined) { var raw = localStorage.getItem(PFX + path); if (!raw) return null; var o = JSON.parse(raw); return (Date.now() - o.t < TTL) ? o.d : null; }
@@ -112,7 +115,13 @@
   function slim(path, d) {
     if (!Array.isArray(d)) return d;
     if (path.indexOf('agents') === 0) return d.map(function (a) { return { displayName: a.displayName, fullPortrait: a.fullPortrait, displayIcon: a.displayIcon }; });
-    if (path.indexOf('maps') === 0) return d.map(function (m) { return { displayName: m.displayName, splash: m.splash }; });
+    if (path.indexOf('maps') === 0) return d.map(function (m) {
+      return {
+        displayName: m.displayName, splash: m.splash, displayIcon: m.displayIcon,
+        xMultiplier: m.xMultiplier, yMultiplier: m.yMultiplier, xScalarToAdd: m.xScalarToAdd, yScalarToAdd: m.yScalarToAdd,
+        callouts: (m.callouts || []).map(function (c) { return { regionName: c.regionName, superRegionName: c.superRegionName, x: c.location && c.location.x, y: c.location && c.location.y }; })
+      };
+    });
     if (path.indexOf('themes') === 0) return d.map(function (t) { return { uuid: t.uuid, displayName: t.displayName }; });
     if (path.indexOf('contenttiers') === 0) return d.map(function (t) { return { uuid: t.uuid, displayName: t.displayName, highlightColor: t.highlightColor, rank: t.rank }; });
     if (path.indexOf('weapons') === 0) return d.map(function (w) {
@@ -130,14 +139,14 @@
       var hit = store(path);
       cache[path] = hit ? Promise.resolve(hit) : fetch('https://valorant-api.com/v1/' + path)
         .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-        .then(function (j) { var d = slim(path, j.data); store(path, d); return d; })
+        .then(function (j) { if (!j || !Array.isArray(j.data) || !j.data.length) throw new Error('empty'); var d = slim(path, j.data); store(path, d); return d; })
         .catch(function () { return null; });
     }
     return cache[path];
   }
   function byName(list) {
     var m = {};
-    (list || []).forEach(function (x) { m[x.displayName.toLowerCase()] = x; });
+    (list || []).forEach(function (x) { if (x && x.displayName) m[String(x.displayName).toLowerCase()] = x; });
     return m;
   }
   // свои картинки из папки img/ (имена перечислены в data.js → localImages)
@@ -168,15 +177,15 @@
       '<div class="body"><span class="tag">' + a[1] + '</span><h3>' + esc(a[0]) + '</h3><p>' + esc(a[2]) + '</p></div></article>';
   }
   function mapCard(m) {
-    return '<article class="card" id="' + slug(m[0]) + '" data-name="' + esc(m[0]) + '">' +
+    return '<article class="card map-card" id="' + slug(m[0]) + '" data-name="' + esc(m[0]) + '" tabindex="0" role="button" aria-label="Открыть карту ' + esc(m[0]) + '">' +
       '<div class="media map">' + ph(m[0]) + '</div>' +
       '<div class="body"><span class="tag">' + esc(m[1]) + '</span><h3>' + esc(m[0]) + '</h3><p>' + esc(m[2]) + '</p>' +
-      '<p><b style="color:#fff">Особенности:</b> ' + esc(m[3]) + '</p></div></article>';
+      '<p><b style="color:#fff">Особенности:</b> ' + esc(m[3]) + '</p><span class="more-link">Открыть схему карты →</span></div></article>';
   }
   function weaponCard(w) {
     return '<article class="card" id="' + slug(w[0]) + '" data-name="' + esc(w[0]) + '" data-cat="' + w[1] + '">' +
-      '<span class="price">' + (w[2] === 0 ? 'Free' : w[2]) + '</span>' +
       '<div class="media weapon">' + ph(w[0]) + '</div>' +
+      '<div class="price-bar"><span>Цена</span><b>' + (w[2] === 0 ? 'Бесплатно' : w[2]) + '</b></div>' +
       '<div class="body"><span class="tag">' + w[1] + '</span><h3>' + esc(w[0]) + '</h3><p>' + esc(w[3]) + '</p></div></article>';
   }
   function modeCard(m, i) {
@@ -192,9 +201,12 @@
       var b = document.createElement('button');
       b.className = 'chip' + (i === 0 ? ' on' : '');
       b.textContent = c;
+      b.type = 'button';
+      b.setAttribute('aria-pressed', i === 0 ? 'true' : 'false');
       b.addEventListener('click', function () {
-        [].forEach.call(wrap.children, function (x) { x.classList.remove('on'); });
+        [].forEach.call(wrap.children, function (x) { x.classList.remove('on'); x.setAttribute('aria-pressed', 'false'); });
         b.classList.add('on');
+        b.setAttribute('aria-pressed', 'true');
         onPick(c);
       });
       wrap.appendChild(b);
@@ -224,15 +236,94 @@
     });
   }
   function pageMaps() {
-    var grid = $('#maps-root');
+    var grid = $('#maps-root'), mapData = null, current = null, lastFocus = null;
     grid.innerHTML = D.maps.map(mapCard).join('');
-    api('maps').then(function (list) {
-      var m = byName(list);
+    var ready = api('maps').then(function (list) {
+      mapData = byName(list);
       [].forEach.call(grid.children, function (c) {
-        var x = m[c.dataset.name.toLowerCase()], li = localImg('maps', c.dataset.name);
+        var x = mapData[c.dataset.name.toLowerCase()], li = localImg('maps', c.dataset.name);
         if (li) setImg(c, li, c.dataset.name); else if (x) setImg(c, x.splash, c.dataset.name);
       });
+      if (current) renderStage(current);
     });
+
+    var modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.hidden = true;
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.innerHTML = '<div class="modal-box"><button class="modal-close" type="button" aria-label="Закрыть">✕</button><div class="modal-body"></div></div>';
+    document.body.appendChild(modal);
+    var body = $('.modal-body', modal);
+
+    function info(name) { for (var i = 0; i < D.maps.length; i++) if (D.maps[i][0] === name) return D.maps[i]; return null; }
+
+    // схема: изображение карты + точки с названиями позиций
+    function renderStage(name) {
+      var box = $('.map-view', body); if (!box) return;
+      var d = mapData && mapData[name.toLowerCase()];
+      if (!mapData) { box.innerHTML = '<p class="empty">Загрузка схемы…</p>'; return; }
+      if (!d || !d.displayIcon) { box.innerHTML = '<p class="empty">Схема этой карты недоступна. Попробуйте позже.</p>'; $('.callouts', body).innerHTML = ''; return; }
+      var dots = '', groups = {}, order = [];
+      (d.callouts || []).forEach(function (c, i) {
+        if (typeof c.x !== 'number' || typeof c.y !== 'number') return;
+        var left = (c.y * d.xMultiplier + d.xScalarToAdd) * 100, top = (c.x * d.yMultiplier + d.yScalarToAdd) * 100;
+        if (!(left >= 0 && left <= 100 && top >= 0 && top <= 100)) return;
+        dots += '<button type="button" class="dot" data-i="' + i + '" style="left:' + left.toFixed(2) + '%;top:' + top.toFixed(2) + '%" aria-label="' +
+          esc((c.superRegionName ? c.superRegionName + ' · ' : '') + c.regionName) + '"><span>' + esc(c.regionName) + '</span></button>';
+        var g = c.superRegionName || 'Другое';
+        if (!groups[g]) { groups[g] = []; order.push(g); }
+        groups[g].push({ i: i, n: c.regionName });
+      });
+      box.innerHTML = '<div class="stage"><img src="' + esc(d.displayIcon) + '" alt="Схема карты ' + esc(name) + '" decoding="async">' + dots + '</div>' +
+        '<label class="toggle"><input type="checkbox" id="show-names"> Показывать названия на карте</label>';
+      $('.callouts', body).innerHTML = order.length
+        ? '<h4>Позиции на карте</h4>' + order.map(function (g) {
+            return '<div class="cgroup"><b>' + esc(g) + '</b><div>' + groups[g].map(function (c) {
+              return '<button type="button" class="chip small" data-i="' + c.i + '">' + esc(c.n) + '</button>';
+            }).join('') + '</div></div>';
+          }).join('')
+        : '<p class="empty">Названия позиций для этой карты пока недоступны.</p>';
+      var stage = $('.stage', box);
+      $('#show-names', box).addEventListener('change', function () { stage.classList.toggle('names', this.checked); });
+      function hl(i, on) { var dEl = $('.dot[data-i="' + i + '"]', stage); if (dEl) dEl.classList.toggle('hot', on); }
+      body.querySelectorAll('.callouts .chip').forEach(function (b) {
+        var i = b.getAttribute('data-i');
+        b.addEventListener('mouseenter', function () { hl(i, true); });
+        b.addEventListener('mouseleave', function () { hl(i, false); });
+        b.addEventListener('focus', function () { hl(i, true); });
+        b.addEventListener('blur', function () { hl(i, false); });
+      });
+    }
+
+    function open(name) {
+      var m = info(name); if (!m) return;
+      current = name; lastFocus = document.activeElement;
+      body.innerHTML = '<div class="modal-grid"><div class="map-view"><p class="empty">Загрузка схемы…</p></div>' +
+        '<aside><span class="tag">' + esc(m[1]) + '</span><h2 id="modal-title">' + esc(m[0]) + '</h2><p class="lead">' + esc(m[2]) + '</p>' +
+        '<p><b>Особенности:</b> ' + esc(m[3]) + '</p><div class="callouts"></div></aside></div>';
+      modal.setAttribute('aria-labelledby', 'modal-title');
+      modal.hidden = false;
+      document.body.classList.add('no-scroll');
+      $('.modal-close', modal).focus();
+      if (mapData) renderStage(name); else ready.then(function () { if (current === name) renderStage(name); });
+      try { history.replaceState(null, '', '#' + slug(name)); } catch (e) {}
+    }
+    function close() {
+      if (modal.hidden) return;
+      modal.hidden = true; current = null;
+      document.body.classList.remove('no-scroll');
+      try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+    grid.addEventListener('click', function (e) { var c = e.target.closest('.map-card'); if (c) open(c.dataset.name); });
+    grid.addEventListener('keydown', function (e) {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('map-card')) { e.preventDefault(); open(e.target.dataset.name); }
+    });
+    modal.addEventListener('click', function (e) { if (e.target === modal || e.target.closest('.modal-close')) close(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    // ссылка вида maps.html#ascent сразу открывает карту
+    if (location.hash) { var t = $(location.hash, grid); if (t && t.classList.contains('map-card')) open(t.dataset.name); }
   }
   function pageWeapons() {
     var root = $('#weapons-root');
@@ -289,6 +380,10 @@
     var root = $('#skins-root'), more = $('#skins-more'), countEl = $('#skins-count');
     var qEl = $('#skin-q'), wEl = $('#skin-weapon'), tBox = $('#skin-tiers');
     var STEP = 48;
+    if (!pageSkins.bound) {
+      pageSkins.bound = true;
+      root.addEventListener('error', function (e) { if (e.target.tagName === 'IMG') e.target.remove(); }, true);
+    }
     root.innerHTML = '<p class="empty">Загрузка скинов…</p>';
 
     loadSkinData(false).then(function (d) {
@@ -320,7 +415,6 @@
         draw();
       }
       try { var pq = new URLSearchParams(location.search).get('q'); if (pq) qEl.value = pq; } catch (e) {}
-      root.addEventListener('error', function (e) { if (e.target.tagName === 'IMG') e.target.remove(); }, true);
       qEl.addEventListener('input', apply);
       wEl.addEventListener('change', apply);
       more.addEventListener('click', draw);
@@ -331,6 +425,10 @@
   function pageCollections() {
     var root = $('#col-root'), more = $('#col-more'), qEl = $('#col-q'), countEl = $('#col-count'), detail = $('#col-detail');
     var STEP = 24;
+    if (!pageCollections.bound) {
+      pageCollections.bound = true;
+      document.addEventListener('error', function (e) { if (e.target.tagName === 'IMG' && e.target.closest('#col-root,#col-detail')) e.target.remove(); }, true);
+    }
     root.innerHTML = '<p class="empty">Загрузка наборов…</p>';
     loadSkinData(true).then(function (d) {
       if (!d || !Object.keys(d.themes).length) { failMsg(root, pageCollections); return; }
@@ -379,7 +477,6 @@
         detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
       root.addEventListener('click', function (e) { var b = e.target.closest('.col'); if (b) open(b.getAttribute('data-id')); });
-      document.addEventListener('error', function (e) { if (e.target.tagName === 'IMG' && e.target.closest('#col-root,#col-detail')) e.target.remove(); }, true);
       qEl.addEventListener('input', apply);
       more.addEventListener('click', draw);
       apply();
@@ -399,7 +496,7 @@
       var cls = ['f1', 'f2', 'f3'];
       var html = chosen.map(function (n, i) {
         var a = m[n.toLowerCase()];
-        return a && a.fullPortrait ? '<img class="fig ' + cls[i] + '" src="' + a.fullPortrait + '" alt="' + n + '">' : '';
+        return a && a.fullPortrait ? '<img class="fig ' + cls[i] + '" src="' + esc(a.fullPortrait) + '" alt="' + esc(n) + '">' : '';
       }).join('');
       if (html) art.innerHTML = html;
     });
