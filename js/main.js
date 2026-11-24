@@ -256,6 +256,12 @@
     document.body.appendChild(modal);
     var body = $('.modal-body', modal);
 
+    function fullName(c) {
+      var sr = c.superRegionName || '', rn = c.regionName || '';
+      if (!sr) return rn;
+      var re = new RegExp('(^|\\W)' + sr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(\\W|$)', 'i');
+      return re.test(rn) ? rn : sr + ' ' + rn;
+    }
     function info(name) { for (var i = 0; i < D.maps.length; i++) if (D.maps[i][0] === name) return D.maps[i]; return null; }
 
     // схема: изображение карты + точки с названиями позиций
@@ -264,19 +270,18 @@
       var d = mapData && mapData[name.toLowerCase()];
       if (!mapData) { box.innerHTML = '<p class="empty">Загрузка схемы…</p>'; return; }
       if (!d || !d.displayIcon) { box.innerHTML = '<p class="empty">Схема этой карты недоступна. Попробуйте позже.</p>'; $('.callouts', body).innerHTML = ''; return; }
-      var dots = '', groups = {}, order = [];
+      var labels = '', groups = {}, order = [];
       (d.callouts || []).forEach(function (c, i) {
         if (typeof c.x !== 'number' || typeof c.y !== 'number') return;
         var left = (c.y * d.xMultiplier + d.xScalarToAdd) * 100, top = (c.x * d.yMultiplier + d.yScalarToAdd) * 100;
         if (!(left >= 0 && left <= 100 && top >= 0 && top <= 100)) return;
-        dots += '<button type="button" class="dot" data-i="' + i + '" style="left:' + left.toFixed(2) + '%;top:' + top.toFixed(2) + '%" aria-label="' +
-          esc((c.superRegionName ? c.superRegionName + ' · ' : '') + c.regionName) + '"><span>' + esc(c.regionName) + '</span></button>';
+        var nm = fullName(c);
+        labels += '<span class="lbl" data-i="' + i + '" style="left:' + left.toFixed(2) + '%;top:' + top.toFixed(2) + '%">' + esc(nm) + '</span>';
         var g = c.superRegionName || 'Другое';
         if (!groups[g]) { groups[g] = []; order.push(g); }
-        groups[g].push({ i: i, n: c.regionName });
+        groups[g].push({ i: i, n: nm });
       });
-      box.innerHTML = '<div class="stage"><img src="' + esc(d.displayIcon) + '" alt="Схема карты ' + esc(name) + '" decoding="async">' + dots + '</div>' +
-        '<label class="toggle"><input type="checkbox" id="show-names"> Показывать названия на карте</label>';
+      box.innerHTML = '<div class="stage"><img src="' + esc(d.displayIcon) + '" alt="Схема карты ' + esc(name) + '" decoding="async">' + labels + '</div>';
       $('.callouts', body).innerHTML = order.length
         ? '<h4>Позиции на карте</h4>' + order.map(function (g) {
             return '<div class="cgroup"><b>' + esc(g) + '</b><div>' + groups[g].map(function (c) {
@@ -285,8 +290,7 @@
           }).join('')
         : '<p class="empty">Названия позиций для этой карты пока недоступны.</p>';
       var stage = $('.stage', box);
-      $('#show-names', box).addEventListener('change', function () { stage.classList.toggle('names', this.checked); });
-      function hl(i, on) { var dEl = $('.dot[data-i="' + i + '"]', stage); if (dEl) dEl.classList.toggle('hot', on); }
+      function hl(i, on) { var el = $('.lbl[data-i="' + i + '"]', stage); if (el) el.classList.toggle('hot', on); }
       body.querySelectorAll('.callouts .chip').forEach(function (b) {
         var i = b.getAttribute('data-i');
         b.addEventListener('mouseenter', function () { hl(i, true); });
