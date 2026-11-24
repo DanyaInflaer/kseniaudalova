@@ -97,10 +97,13 @@
   function setImg(card, url, alt) {
     var media = $('.media', card);
     if (!media || !url) return;
-    var img = new Image();
-    img.alt = alt; img.loading = 'lazy';
-    img.onload = function () { media.insertBefore(img, media.firstChild); };
+    var img = document.createElement('img');
+    img.alt = alt;
+    img.decoding = 'async';
+    // картинка вставляется сразу: если не загрузится — остаётся буква-заглушка
+    img.onerror = function () { img.remove(); };
     img.src = url;
+    media.insertBefore(img, media.firstChild);
   }
 
   /* ---------- карточки ---------- */
