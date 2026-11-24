@@ -210,3 +210,12 @@ h3{font-size:1.1rem;font-weight:700}
 @media(max-width:380px){
   .grid.c2,.grid.c3,.grid.c4,.grid.c5{grid-template-columns:1fr}
 }
+
+/* пока шапка не вставлена скриптом — резервируем место, чтобы страница не «прыгала» */
+body:not(.ready)::before{content:"";display:block;height:68px;border-bottom:1px solid var(--line)}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.search input:focus-visible,.toolbar input:focus-visible,.toolbar select:focus-visible{outline:none}
+.noscript{max-width:720px;margin:40px auto;padding:0 20px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}

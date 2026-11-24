@@ -6,13 +6,21 @@
 <title>VALORANT HUB — всё об игре VALORANT</title>
 <meta name="description" content="VALORANT HUB — информационный сайт об игре VALORANT: агенты, карты, оружие и игровые режимы.">
 <meta name="theme-color" content="#101014">
+<meta property="og:type" content="website">
+<meta property="og:title" content="VALORANT HUB — всё об игре VALORANT">
+<meta property="og:description" content="VALORANT HUB — информационный сайт об игре VALORANT: агенты, карты, оружие и игровые режимы.">
+<meta property="og:locale" content="ru_RU">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23101014'/%3E%3Cpath fill='%23FF4655' d='M3 7h8l5 9 5-9h8L16 26z'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://media.valorant-api.com" crossorigin>
+<link rel="dns-prefetch" href="https://valorant-api.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-page="home">
 <main>
+<noscript><p class="noscript">Для работы сайта нужен включённый JavaScript: шапка, поиск и карточки строятся скриптом.</p></noscript>
 <section class="hero"><div class="container hero-inner">
 <div class="hero-text">
 <div class="eyebrow">Добро пожаловать</div>
@@ -65,7 +73,7 @@
 <div class="grid c3 single" id="home-cards"></div>
 </div></section>
 </main>
-<script src="js/data.js"></script>
-<script src="js/main.js"></script>
+<script src="js/data.js" defer></script>
+<script src="js/main.js" defer></script>
 </body>
 </html>

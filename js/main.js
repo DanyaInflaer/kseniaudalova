@@ -36,6 +36,7 @@
       '<button class="burger" id="burger" aria-label="Открыть меню"><span></span></button>' +
       '</div>';
     document.body.insertBefore(header, document.body.firstChild);
+    document.body.classList.add('ready');
 
     var footer = document.createElement('footer');
     footer.className = 'site-footer';
@@ -77,7 +78,9 @@
       });
     }
     input.addEventListener('focus', loadSkins);
-    input.addEventListener('input', function () {
+    var tmr;
+    input.addEventListener('input', function () { clearTimeout(tmr); tmr = setTimeout(runSearch, 120); });
+    function runSearch() {
       var q = input.value.trim().toLowerCase();
       if (!q) { box.classList.remove('open'); return; }
       var res = idx.filter(function (i) { return i.s.indexOf(q) !== -1; })
@@ -87,21 +90,46 @@
         ? res.map(function (r) { return '<a href="' + r.u + '"><span>' + esc(r.t) + '</span><small>' + esc(r.k) + '</small></a>'; }).join('')
         : '<p>Ничего не найдено</p>';
       box.classList.add('open');
-    });
+    }
     document.addEventListener('click', function (e) { if (!e.target.closest('.search')) box.classList.remove('open'); });
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') { box.classList.remove('open'); input.blur(); }
-      if (e.key === 'Enter') { var f = $('a', box); if (f) location.href = f.getAttribute('href'); }
+      if (e.key === 'Enter') { clearTimeout(tmr); runSearch(); var f = $('a', box); if (f) location.href = f.getAttribute('href'); }
     });
   }
 
   /* ---------- данные с valorant-api.com (картинки) ---------- */
   var cache = {};
+  var TTL = 24 * 3600 * 1000, PFX = 'vh2:';
+  function store(path, val) {
+    try {
+      if (val === undefined) { var raw = localStorage.getItem(PFX + path); if (!raw) return null; var o = JSON.parse(raw); return (Date.now() - o.t < TTL) ? o.d : null; }
+      localStorage.setItem(PFX + path, JSON.stringify({ t: Date.now(), d: val }));
+    } catch (e) { /* хранилище недоступно — работаем без кэша */ }
+    return null;
+  }
+  // оставляем только нужные поля: ответ API огромный, а в кэше и памяти он не нужен
+  function slim(path, d) {
+    if (!Array.isArray(d)) return d;
+    if (path.indexOf('agents') === 0) return d.map(function (a) { return { displayName: a.displayName, fullPortrait: a.fullPortrait, displayIcon: a.displayIcon }; });
+    if (path.indexOf('maps') === 0) return d.map(function (m) { return { displayName: m.displayName, splash: m.splash }; });
+    if (path.indexOf('contenttiers') === 0) return d.map(function (t) { return { uuid: t.uuid, displayName: t.displayName, highlightColor: t.highlightColor, rank: t.rank }; });
+    if (path.indexOf('weapons') === 0) return d.map(function (w) {
+      var skins = [];
+      (w.skins || []).forEach(function (s) {
+        var img = s.displayIcon || (s.chromas && s.chromas[0] && (s.chromas[0].fullRender || s.chromas[0].displayIcon)) || (s.levels && s.levels[0] && s.levels[0].displayIcon);
+        if (img) skins.push({ displayName: s.displayName, displayIcon: img, contentTierUuid: s.contentTierUuid });
+      });
+      return { displayName: w.displayName, displayIcon: w.displayIcon, skins: skins };
+    });
+    return d;
+  }
   function api(path) {
     if (!cache[path]) {
-      cache[path] = fetch('https://valorant-api.com/v1/' + path)
+      var hit = store(path);
+      cache[path] = hit ? Promise.resolve(hit) : fetch('https://valorant-api.com/v1/' + path)
         .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-        .then(function (j) { return j.data; })
+        .then(function (j) { var d = slim(path, j.data); store(path, d); return d; })
         .catch(function () { return null; });
     }
     return cache[path];
@@ -117,6 +145,7 @@
     var img = document.createElement('img');
     img.alt = alt;
     img.decoding = 'async';
+    img.loading = 'lazy';
     // картинка вставляется сразу: если не загрузится — остаётся буква-заглушка
     img.onerror = function () { img.remove(); };
     img.src = url;
