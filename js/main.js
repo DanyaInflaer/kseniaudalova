@@ -282,6 +282,15 @@
         groups[g].push({ i: i, n: nm });
       });
       box.innerHTML = '<div class="stage"><img src="' + esc(d.displayIcon) + '" alt="Схема карты ' + esc(name) + '" decoding="async">' + labels + '</div>';
+      // поле схемы повторяет реальные пропорции картинки, чтобы подписи (в процентах) попадали на свои места
+      var mapImg = $('.stage img', box);
+      function fit() {
+        if (!mapImg.naturalWidth || !mapImg.naturalHeight) return;
+        var r = mapImg.naturalWidth / mapImg.naturalHeight, st = mapImg.parentNode;
+        st.style.aspectRatio = mapImg.naturalWidth + ' / ' + mapImg.naturalHeight;
+        st.style.maxWidth = 'calc(78vh * ' + r.toFixed(4) + ')';
+      }
+      if (mapImg.complete) fit(); else mapImg.addEventListener('load', fit);
       $('.callouts', body).innerHTML = order.length
         ? '<h4>Позиции на карте</h4>' + order.map(function (g) {
             return '<div class="cgroup"><b>' + esc(g) + '</b><div>' + groups[g].map(function (c) {
