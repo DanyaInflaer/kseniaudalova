@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Collections — VALORANT HUB</title>
+<meta name="description" content="Наборы скинов VALORANT: серии, их оружие, редкость и состав.">
+<meta name="theme-color" content="#101014">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Collections — VALORANT HUB">
+<meta property="og:description" content="Наборы скинов VALORANT: серии, их оружие, редкость и состав.">
+<meta property="og:locale" content="ru_RU">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23101014'/%3E%3Cpath fill='%23FF4655' d='M3 7h8l5 9 5-9h8L16 26z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://media.valorant-api.com" crossorigin>
+<link rel="dns-prefetch" href="https://valorant-api.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="collections">
+<main>
+<noscript><p class="noscript">Для работы сайта нужен включённый JavaScript: шапка, поиск и карточки строятся скриптом.</p></noscript>
+<section class="page-title"><div class="container">
+<div class="eyebrow">Серии</div>
+<h1 style="font-size:clamp(2rem,5vw,3.4rem)"><span class="accent">C</span>ollections</h1>
+<p>Скины, объединённые одной серией: Prime, Reaver, Elderflame и другие. Нажмите на набор, чтобы увидеть все его скины.</p>
+</div></section>
+<div class="container"><div class="filters" style="margin:26px 0 -30px"><a class="chip" href="skins.html">Все скины</a><a class="chip on" href="collections.html">Наборы</a></div></div>
+<section class="section"><div class="container">
+<div class="toolbar">
+<input id="col-q" type="search" placeholder="Название набора…" aria-label="Поиск набора" autocomplete="off">
+<span id="col-count" class="count"></span>
+</div>
+<div class="detail" id="col-detail" hidden></div>
+<div class="grid c3" id="col-root"></div>
+<div style="text-align:center;margin-top:30px"><button class="btn" id="col-more" type="button" hidden>Показать ещё</button></div>
+<p class="note">Картинки и названия наборов берутся из открытой базы valorant-api.com. Набор скинов в магазине игры меняется, а изображения принадлежат Riot Games.</p>
+</div></section>
+</main>
+<script src="js/data.js" defer></script>
+<script src="js/main.js" defer></script>
+</body>
+</html>

@@ -10,6 +10,7 @@
 - `maps.html` — карты
 - `weapons.html` — оружие по классам, цены
 - `skins.html` — все скины: поиск, оружие, редкость
+- `collections.html` — наборы скинов по сериям
 - `modes.html` — игровые режимы
 - `about.html` — об игре и Riot Games
 - `404.html` — страница «не найдено»

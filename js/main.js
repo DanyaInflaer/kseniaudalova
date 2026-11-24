@@ -22,7 +22,7 @@
   /* ---------- шапка и подвал ---------- */
   function renderChrome() {
     var links = NAV.map(function (n) {
-      return '<a href="' + n[0] + '"' + (n[2] === page ? ' class="active"' : '') + '>' + n[1] + '</a>';
+      return '<a href="' + n[0] + '"' + (n[2] === page || (page === 'collections' && n[2] === 'skins') ? ' class="active"' : '') + '>' + n[1] + '</a>';
     }).join('');
 
     var header = document.createElement('header');
@@ -100,7 +100,7 @@
 
   /* ---------- данные с valorant-api.com (картинки) ---------- */
   var cache = {};
-  var TTL = 24 * 3600 * 1000, PFX = 'vh2:';
+  var TTL = 24 * 3600 * 1000, PFX = 'vh3:';
   function store(path, val) {
     try {
       if (val === undefined) { var raw = localStorage.getItem(PFX + path); if (!raw) return null; var o = JSON.parse(raw); return (Date.now() - o.t < TTL) ? o.d : null; }
@@ -113,12 +113,13 @@
     if (!Array.isArray(d)) return d;
     if (path.indexOf('agents') === 0) return d.map(function (a) { return { displayName: a.displayName, fullPortrait: a.fullPortrait, displayIcon: a.displayIcon }; });
     if (path.indexOf('maps') === 0) return d.map(function (m) { return { displayName: m.displayName, splash: m.splash }; });
+    if (path.indexOf('themes') === 0) return d.map(function (t) { return { uuid: t.uuid, displayName: t.displayName }; });
     if (path.indexOf('contenttiers') === 0) return d.map(function (t) { return { uuid: t.uuid, displayName: t.displayName, highlightColor: t.highlightColor, rank: t.rank }; });
     if (path.indexOf('weapons') === 0) return d.map(function (w) {
       var skins = [];
       (w.skins || []).forEach(function (s) {
         var img = s.displayIcon || (s.chromas && s.chromas[0] && (s.chromas[0].fullRender || s.chromas[0].displayIcon)) || (s.levels && s.levels[0] && s.levels[0].displayIcon);
-        if (img) skins.push({ displayName: s.displayName, displayIcon: img, contentTierUuid: s.contentTierUuid });
+        if (img) skins.push({ displayName: s.displayName, displayIcon: img, contentTierUuid: s.contentTierUuid, themeUuid: s.themeUuid });
       });
       return { displayName: w.displayName, displayIcon: w.displayIcon, skins: skins };
     });
@@ -251,36 +252,48 @@
       });
     });
   }
+  function skinCard(s) {
+    return '<article class="card skin" style="--tier:' + (s.color || 'var(--red)') + '"><div class="media weapon">' +
+      '<img src="' + esc(s.img) + '" alt="' + esc(s.name) + '" loading="lazy" decoding="async">' + ph(s.name) + '</div>' +
+      '<div class="body"><span class="tag">' + esc(s.tier) + '</span><h3>' + esc(s.name) + '</h3><p>' + esc(s.weapon) + '</p></div></article>';
+  }
+  // все скины одним списком (+ названия наборов, если withThemes)
+  function loadSkinData(withThemes) {
+    return Promise.all([api('weapons'), api('contenttiers'), withThemes ? api('themes') : Promise.resolve([])]).then(function (r) {
+      var weapons = r[0], tiers = r[1], themes = r[2];
+      if (!weapons || !themes) { delete cache['weapons']; delete cache['contenttiers']; delete cache['themes']; return null; }
+      var tierMap = {}, themeMap = {};
+      (tiers || []).forEach(function (t) {
+        tierMap[String(t.uuid).toLowerCase()] = { name: (t.displayName || '').replace(/\s*Edition$/i, ''), color: t.highlightColor ? '#' + t.highlightColor.slice(0, 6) : '', rank: t.rank || 0 };
+      });
+      themes.forEach(function (t) { themeMap[String(t.uuid).toLowerCase()] = t.displayName; });
+      var all = [];
+      weapons.forEach(function (w) {
+        (w.skins || []).forEach(function (s) {
+          var n = s.displayName || '';
+          if (!s.displayIcon || /^standard /i.test(n) || /^random favorite/i.test(n)) return;
+          var t = tierMap[String(s.contentTierUuid || '').toLowerCase()] || { name: 'Other', color: '', rank: -1 };
+          all.push({ name: n, weapon: w.displayName, tier: t.name, color: t.color, rank: t.rank, img: s.displayIcon, theme: String(s.themeUuid || '').toLowerCase() });
+        });
+      });
+      all.sort(function (x, y) { return x.weapon.localeCompare(y.weapon) || x.name.localeCompare(y.name); });
+      return { all: all, themes: themeMap };
+    });
+  }
+  function failMsg(root, retry) {
+    root.innerHTML = '<p class="empty">Не удалось загрузить данные с valorant-api.com. Проверьте интернет и попробуйте ещё раз. <button class="btn" id="retry" type="button" style="margin-left:10px">Повторить</button></p>';
+    $('#retry').addEventListener('click', retry);
+  }
+
   function pageSkins() {
     var root = $('#skins-root'), more = $('#skins-more'), countEl = $('#skins-count');
     var qEl = $('#skin-q'), wEl = $('#skin-weapon'), tBox = $('#skin-tiers');
     var STEP = 48;
     root.innerHTML = '<p class="empty">Загрузка скинов…</p>';
 
-    Promise.all([api('weapons'), api('contenttiers')]).then(function (r) {
-      var weapons = r[0], tiers = r[1];
-      if (!weapons) {
-        delete cache['weapons']; delete cache['contenttiers'];
-        root.innerHTML = '<p class="empty">Не удалось загрузить скины с valorant-api.com. Проверьте интернет и попробуйте ещё раз. <button class="btn" id="retry" type="button" style="margin-left:10px">Повторить</button></p>';
-        $('#retry').addEventListener('click', pageSkins);
-        return;
-      }
-      var tierMap = {};
-      (tiers || []).forEach(function (t) {
-        tierMap[String(t.uuid).toLowerCase()] = { name: (t.displayName || '').replace(/\s*Edition$/i, ''), color: t.highlightColor ? '#' + t.highlightColor.slice(0, 6) : '', rank: t.rank || 0 };
-      });
-      var all = [];
-      weapons.forEach(function (w) {
-        (w.skins || []).forEach(function (s) {
-          var n = s.displayName || '';
-          if (/^standard /i.test(n) || /^random favorite/i.test(n)) return;
-          var img = s.displayIcon || (s.chromas && s.chromas[0] && (s.chromas[0].fullRender || s.chromas[0].displayIcon)) || (s.levels && s.levels[0] && s.levels[0].displayIcon);
-          if (!img) return;
-          var t = tierMap[String(s.contentTierUuid || '').toLowerCase()] || { name: 'Other', color: '', rank: -1 };
-          all.push({ name: n, weapon: w.displayName, tier: t.name, color: t.color, rank: t.rank, img: img });
-        });
-      });
-      all.sort(function (a, b) { return a.weapon.localeCompare(b.weapon) || a.name.localeCompare(b.name); });
+    loadSkinData(false).then(function (d) {
+      if (!d) { failMsg(root, pageSkins); return; }
+      var all = d.all;
 
       var weaponNames = uniq(all.map(function (s) { return s.weapon; })).sort();
       wEl.innerHTML = '<option value="">Всё оружие</option>' + weaponNames.map(function (n) { return '<option>' + esc(n) + '</option>'; }).join('');
@@ -290,14 +303,9 @@
       tBox.appendChild(chips(tierNames, function (c) { tier = c; apply(); }));
 
       var list = [], shown = 0;
-      function card(s) {
-        return '<article class="card skin" style="--tier:' + (s.color || 'var(--red)') + '"><div class="media weapon">' +
-          '<img src="' + esc(s.img) + '" alt="' + esc(s.name) + '" loading="lazy" decoding="async">' + ph(s.name) + '</div>' +
-          '<div class="body"><span class="tag">' + esc(s.tier) + '</span><h3>' + esc(s.name) + '</h3><p>' + esc(s.weapon) + '</p></div></article>';
-      }
       function draw() {
         var next = list.slice(shown, shown + STEP);
-        root.insertAdjacentHTML('beforeend', next.map(card).join(''));
+        root.insertAdjacentHTML('beforeend', next.map(skinCard).join(''));
         shown += next.length;
         more.hidden = shown >= list.length;
         countEl.textContent = 'Показано ' + shown + ' из ' + list.length;
@@ -315,6 +323,64 @@
       root.addEventListener('error', function (e) { if (e.target.tagName === 'IMG') e.target.remove(); }, true);
       qEl.addEventListener('input', apply);
       wEl.addEventListener('change', apply);
+      more.addEventListener('click', draw);
+      apply();
+    });
+  }
+
+  function pageCollections() {
+    var root = $('#col-root'), more = $('#col-more'), qEl = $('#col-q'), countEl = $('#col-count'), detail = $('#col-detail');
+    var STEP = 24;
+    root.innerHTML = '<p class="empty">Загрузка наборов…</p>';
+    loadSkinData(true).then(function (d) {
+      if (!d || !Object.keys(d.themes).length) { failMsg(root, pageCollections); return; }
+      var groups = {};
+      d.all.forEach(function (s) {
+        var nm = d.themes[s.theme];
+        if (!nm || /^(standard|other)$/i.test(nm)) return;
+        (groups[s.theme] = groups[s.theme] || { id: s.theme, name: nm, skins: [] }).skins.push(s);
+      });
+      var cols = Object.keys(groups).map(function (k) {
+        var g = groups[k];
+        g.skins.sort(function (a, b) { return b.rank - a.rank || a.weapon.localeCompare(b.weapon); });
+        g.top = g.skins[0];
+        g.weapons = uniq(g.skins.map(function (x) { return x.weapon; }));
+        return g;
+      }).sort(function (a, b) { return a.name.localeCompare(b.name); });
+
+      var list = [], shown = 0;
+      function colCard(g) {
+        var thumbs = g.skins.slice(0, 4).map(function (s) { return '<img src="' + esc(s.img) + '" alt="" loading="lazy" decoding="async">'; }).join('');
+        return '<button type="button" class="card col" data-id="' + esc(g.id) + '" style="--tier:' + (g.top.color || 'var(--red)') + '">' +
+          '<div class="mosaic">' + thumbs + '</div>' +
+          '<div class="body"><span class="tag">' + esc(g.top.tier) + '</span><h3>' + esc(g.name) + '</h3>' +
+          '<p>' + g.skins.length + ' ' + (g.skins.length === 1 ? 'скин' : (g.skins.length < 5 ? 'скина' : 'скинов')) + ' · ' + esc(g.weapons.slice(0, 3).join(', ')) + (g.weapons.length > 3 ? '…' : '') + '</p></div></button>';
+      }
+      function draw() {
+        var next = list.slice(shown, shown + STEP);
+        root.insertAdjacentHTML('beforeend', next.map(colCard).join(''));
+        shown += next.length;
+        more.hidden = shown >= list.length;
+        countEl.textContent = 'Показано ' + shown + ' из ' + list.length;
+      }
+      function apply() {
+        var q = qEl.value.trim().toLowerCase();
+        list = cols.filter(function (g) { return !q || g.name.toLowerCase().indexOf(q) !== -1; });
+        root.innerHTML = ''; shown = 0;
+        if (!list.length) { root.innerHTML = '<p class="empty">Ничего не найдено</p>'; more.hidden = true; countEl.textContent = ''; return; }
+        draw();
+      }
+      function open(id) {
+        var g = groups[id]; if (!g) return;
+        detail.innerHTML = '<div class="detail-head"><h2>' + esc(g.name) + ' <span class="accent">· ' + g.skins.length + '</span></h2>' +
+          '<button class="chip" type="button" id="col-close">Закрыть ✕</button></div><div class="grid c4">' + g.skins.map(skinCard).join('') + '</div>';
+        detail.hidden = false;
+        $('#col-close').addEventListener('click', function () { detail.hidden = true; });
+        detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      root.addEventListener('click', function (e) { var b = e.target.closest('.col'); if (b) open(b.getAttribute('data-id')); });
+      document.addEventListener('error', function (e) { if (e.target.tagName === 'IMG' && e.target.closest('#col-root,#col-detail')) e.target.remove(); }, true);
+      qEl.addEventListener('input', apply);
       more.addEventListener('click', draw);
       apply();
     });
@@ -364,7 +430,7 @@
 
   renderChrome();
   initSearch();
-  var fn = { home: pageHome, agents: pageAgents, maps: pageMaps, weapons: pageWeapons, skins: pageSkins, modes: pageModes }[page];
+  var fn = { home: pageHome, agents: pageAgents, maps: pageMaps, weapons: pageWeapons, skins: pageSkins, collections: pageCollections, modes: pageModes }[page];
   if (fn) fn();
 
   // после динамической отрисовки перейти к якорю из поиска
