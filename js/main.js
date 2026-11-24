@@ -60,7 +60,23 @@
     return idx;
   }
   function initSearch() {
-    var idx = buildIndex(), input = $('#q'), box = $('#results');
+    var idx = buildIndex(), input = $('#q'), box = $('#results'), skinsLoaded = false;
+    function loadSkins() {
+      if (skinsLoaded) return;
+      skinsLoaded = true;
+      api('weapons').then(function (list) {
+        if (!list) { skinsLoaded = false; delete cache['weapons']; return; }
+        list.forEach(function (w) {
+          (w.skins || []).forEach(function (sk) {
+            var n = sk.displayName || '';
+            if (!n || /^standard /i.test(n) || /^random favorite/i.test(n)) return;
+            idx.push({ t: n, k: 'Скин · ' + w.displayName, u: 'skins.html?q=' + encodeURIComponent(n), s: n.toLowerCase() });
+          });
+        });
+        if (input.value.trim()) input.dispatchEvent(new Event('input'));
+      });
+    }
+    input.addEventListener('focus', loadSkins);
     input.addEventListener('input', function () {
       var q = input.value.trim().toLowerCase();
       if (!q) { box.classList.remove('open'); return; }
@@ -259,6 +275,7 @@
         if (!list.length) { root.innerHTML = '<p class="empty">Ничего не найдено</p>'; more.hidden = true; countEl.textContent = ''; return; }
         draw();
       }
+      try { var pq = new URLSearchParams(location.search).get('q'); if (pq) qEl.value = pq; } catch (e) {}
       root.addEventListener('error', function (e) { if (e.target.tagName === 'IMG') e.target.remove(); }, true);
       qEl.addEventListener('input', apply);
       wEl.addEventListener('change', apply);
