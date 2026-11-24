@@ -215,6 +215,18 @@
       }).join('');
       if (html) art.innerHTML = html;
     });
+    var vb = $('#trailer-box');
+    if (vb) {
+      var btn = $('.video-play', vb);
+      btn.addEventListener('click', function () {
+        var f = document.createElement('iframe');
+        f.src = 'https://www.youtube-nocookie.com/embed/' + vb.getAttribute('data-yt') + '?autoplay=1&rel=0';
+        f.title = 'Трейлер VALORANT';
+        f.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen';
+        f.allowFullscreen = true;
+        vb.replaceChild(f, btn);
+      });
+    }
     var cards = [
       ['agents.html', 'Agents', 'Персонажи игры: роли, способности и стиль каждого агента.'],
       ['maps.html', 'Maps', 'Карты со всего мира, их особенности и ключевые зоны.'],
