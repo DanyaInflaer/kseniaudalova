@@ -10,6 +10,7 @@
     ['weapons.html', 'Weapons', 'weapons'],
     ['skins.html', 'Skins', 'skins'],
     ['modes.html', 'Game Modes', 'modes'],
+    ['lore.html', 'Lore', 'lore'],
     ['about.html', 'About', 'about']
   ];
 
@@ -60,6 +61,8 @@
     D.agents.forEach(function (a) { idx.push({ t: a[0], k: 'Агент · ' + a[1], u: 'agents.html#' + slug(a[0]), s: (a[0] + ' ' + a[1] + ' ' + a[2]).toLowerCase() }); });
     D.maps.forEach(function (m) { idx.push({ t: m[0], k: 'Карта', u: 'maps.html#' + slug(m[0]), s: (m[0] + ' ' + m[1] + ' ' + m[2]).toLowerCase() }); });
     D.weapons.forEach(function (w) { idx.push({ t: w[0], k: 'Оружие · ' + w[1], u: 'weapons.html#' + slug(w[0]), s: (w[0] + ' ' + w[1] + ' ' + w[3]).toLowerCase() }); });
+    [['lore-agents.html', 'Lore: каталог агентов'], ['lore-factions.html', 'Lore: фракции'], ['lore-relations.html', 'Lore: связи агентов'], ['lore-events.html', 'Lore: сюжетные события']].forEach(function (l) { idx.push({ t: l[1], k: 'Lore', u: l[0], s: (l[1] + ' лор сюжет история').toLowerCase() }); });
+    D.agents.forEach(function (a) { idx.push({ t: a[0] + ' — лор', k: 'Lore · история агента', u: 'lore-agent.html?a=' + encodeURIComponent(a[0]), s: (a[0] + ' лор история биография').toLowerCase() }); });
     D.modes.forEach(function (m) { idx.push({ t: m[0], k: 'Режим', u: 'modes.html#' + slug(m[0]), s: (m[0] + ' ' + m[2]).toLowerCase() }); });
     return idx;
   }
@@ -537,6 +540,18 @@
       return '<a class="card link-card" href="' + c[0] + '"><span class="num">0' + (i + 1) + '</span><h3>' + c[1] + '</h3><p>' + c[2] + '</p><span class="more">Открыть →</span></a>';
     }).join('');
   }
+
+  // общие помощники для js/lore.js
+  window.HUBX = { api: api, byName: byName, esc: esc, slug: slug, $: $ };
+
+  // кнопка «наверх» (плавная прокрутка задаётся в CSS)
+  (function () {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'to-top'; b.setAttribute('aria-label', 'Наверх'); b.innerHTML = '↑';
+    b.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    document.body.appendChild(b);
+    window.addEventListener('scroll', function () { b.classList.toggle('show', window.pageYOffset > 600); }, { passive: true });
+  })();
 
   renderChrome();
   initSearch();

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lore: связи — VALORANT HUB</title>
+<meta name="description" content="Интерактивная схема связей между агентами VALORANT.">
+<meta name="theme-color" content="#101014">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Lore: связи — VALORANT HUB">
+<meta property="og:description" content="Интерактивная схема связей между агентами VALORANT.">
+<meta property="og:locale" content="ru_RU">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23101014'/%3E%3Cpath fill='%23FF4655' d='M3 7h8l5 9 5-9h8L16 26z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://media.valorant-api.com" crossorigin>
+<link rel="dns-prefetch" href="https://valorant-api.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="lore" data-sub="relations">
+<main>
+<noscript><p class="noscript">Для работы сайта нужен включённый JavaScript.</p></noscript>
+<div class="subnav" id="subnav"></div>
+<section class="page-title"><div class="container"><div class="eyebrow">Lore</div><h1 style="font-size:clamp(2rem,5vw,3.4rem)">Связи <span class="accent">между агентами</span></h1><p>Нажмите на агента на схеме. Пунктир — предположение сообщества.</p></div></section><section class="section"><div class="container"><div id="rel-legend"></div><div class="filters" id="rel-filters" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px"></div><div class="graph-wrap"><svg id="graph" class="graph" role="img" aria-label="Схема связей агентов"></svg><div class="rel-list" id="rel-box"></div></div></div></section>
+</main>
+<script src="js/data.js" defer></script>
+<script src="js/lore-data.js" defer></script>
+<script src="js/main.js" defer></script>
+<script src="js/lore.js" defer></script>
+</body>
+</html>
