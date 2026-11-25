@@ -553,6 +553,19 @@
     window.addEventListener('scroll', function () { b.classList.toggle('show', window.pageYOffset > 600); }, { passive: true });
   })();
 
+  // видео-заглушки на страницах (картинка → плеер по клику)
+  Array.prototype.forEach.call(document.querySelectorAll('.video[data-yt][data-title]'), function (box) {
+    var b = $('.video-play', box);
+    if (b) b.addEventListener('click', function () {
+      var f = document.createElement('iframe');
+      f.src = 'https://www.youtube-nocookie.com/embed/' + box.getAttribute('data-yt') + '?autoplay=1&rel=0';
+      f.title = box.getAttribute('data-title');
+      f.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      box.replaceChild(f, b);
+    });
+  });
+
   renderChrome();
   initSearch();
   var fn = { home: pageHome, agents: pageAgents, maps: pageMaps, weapons: pageWeapons, skins: pageSkins, collections: pageCollections, modes: pageModes }[page];
