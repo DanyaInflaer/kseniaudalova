@@ -26,14 +26,17 @@
 
   var portraits = null;
   function loadPortraits(cb) {
-    X.api('agents?isPlayableCharacter=true').then(function (d) { portraits = X.byName(d || []); cb(); });
+    X.api('agents?isPlayableCharacter=true').then(function (d) {
+      if (!d) return setTimeout(function () { X.api('agents?isPlayableCharacter=true').then(function (d2) { portraits = X.byName(d2 || []); cb(); }); }, 1500);
+      portraits = X.byName(d); cb();
+    });
   }
   function portrait(el, name) {
     var a = portraits && portraits[name.toLowerCase()];
-    var url = a && (a.fullPortrait || a.displayIcon);
-    if (!url) return;
-    var img = document.createElement('img'); img.alt = name; img.loading = 'lazy'; img.decoding = 'async';
-    img.onerror = function () { img.remove(); }; img.src = url;
+    var urls = a ? [a.fullPortrait, a.displayIcon].filter(Boolean) : [];
+    if (!urls.length) return;
+    var img = document.createElement('img'), i = 0; img.alt = name; img.loading = 'lazy'; img.decoding = 'async';
+    img.onerror = function () { if (++i < urls.length) img.src = urls[i]; else img.remove(); }; img.src = urls[0];
     el.insertBefore(img, el.firstChild);
   }
 

@@ -143,7 +143,7 @@
       cache[path] = hit ? Promise.resolve(hit) : fetch('https://valorant-api.com/v1/' + path)
         .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
         .then(function (j) { if (!j || !Array.isArray(j.data) || !j.data.length) throw new Error('empty'); var d = slim(path, j.data); store(path, d); return d; })
-        .catch(function () { return null; });
+        .catch(function () { delete cache[path]; return null; });
     }
     return cache[path];
   }
@@ -160,14 +160,16 @@
   }
   function setImg(card, url, alt) {
     var media = $('.media', card);
-    if (!media || !url) return;
+    var urls = [].concat(url).filter(Boolean);
+    if (!media || !urls.length) return;
     var img = document.createElement('img');
     img.alt = alt;
     img.decoding = 'async';
     img.loading = 'lazy';
-    // картинка вставляется сразу: если не загрузится — остаётся буква-заглушка
-    img.onerror = function () { img.remove(); };
-    img.src = url;
+    // не загрузилась — пробуем запасной адрес, потом остаётся буква-заглушка
+    var i = 0;
+    img.onerror = function () { if (++i < urls.length) img.src = urls[i]; else img.remove(); };
+    img.src = urls[0];
     media.insertBefore(img, media.firstChild);
   }
 
@@ -234,7 +236,7 @@
       [].forEach.call(grid.children, function (c) {
         var a = m[c.dataset.name.toLowerCase()];
         var li = localImg('agents', c.dataset.name);
-        if (li) setImg(c, li, c.dataset.name); else if (a) setImg(c, a.fullPortrait || a.displayIcon, c.dataset.name);
+        if (li) setImg(c, li, c.dataset.name); else if (a) setImg(c, [a.fullPortrait, a.displayIcon], c.dataset.name);
       });
     });
   }
